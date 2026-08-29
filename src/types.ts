@@ -1,4 +1,4 @@
-export type ExportFormat = 'PNG' | 'JPG' | 'SVG' | 'PDF';
+export type ExportFormat = "PNG" | "JPG" | "SVG" | "PDF";
 
 /**
  * One persistent export "preset". A user can define many of these and they
@@ -21,8 +21,10 @@ export interface ExportTemplate {
   borderRadius: number;
   /**
    * 0 = export the selected node itself.
-   * N = walk N levels down, each time taking the first FRAME child, and
-   * export *that* frame instead (and use its own name if suffix is empty).
+   * N = walk N levels down, each time taking the *first child* (any type —
+   * a frame, vector, image/rectangle, group, component, or instance all
+   * work) and export *that* node instead (and use its own name if suffix
+   * is empty).
    */
   childFrameDepth: number;
 }
@@ -35,15 +37,15 @@ export interface SerializedExportFile {
 
 /** Messages sent from the UI (iframe) to the plugin sandbox (code.ts). */
 export type UIToPluginMessage =
-  | { type: 'load-templates' }
-  | { type: 'save-templates'; templates: ExportTemplate[] }
-  | { type: 'export-all'; templates: ExportTemplate[] }
-  | { type: 'export-one'; template: ExportTemplate };
+  | { type: "load-templates" }
+  | { type: "save-templates"; templates: ExportTemplate[] }
+  | { type: "export-all"; templates: ExportTemplate[] }
+  | { type: "export-one"; template: ExportTemplate };
 
 /** Messages sent from the plugin sandbox (code.ts) to the UI (iframe). */
 export type PluginToUIMessage =
-  | { type: 'templates-loaded'; templates: ExportTemplate[] }
-  | { type: 'selection-changed'; hasSelection: boolean; nodeNames: string[] }
-  | { type: 'export-progress'; done: number; total: number }
-  | { type: 'export-complete'; files: SerializedExportFile[] }
-  | { type: 'export-error'; message: string };
+  | { type: "templates-loaded"; templates: ExportTemplate[] }
+  | { type: "selection-changed"; hasSelection: boolean; nodeNames: string[] }
+  | { type: "export-progress"; done: number; total: number }
+  | { type: "export-complete"; files: SerializedExportFile[] }
+  | { type: "export-error"; message: string };

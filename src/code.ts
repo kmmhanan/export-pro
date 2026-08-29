@@ -38,7 +38,12 @@ const DEFAULT_TEMPLATES: ExportTemplate[] = [
   },
 ];
 
-figma.showUI(__html__, { width: 380, height: 560, themeColors: true });
+figma.showUI(__html__, {
+  width: 420,
+  height: 620,
+  title: "Export Pro",
+  themeColors: true,
+});
 
 function post(msg: PluginToUIMessage): void {
   figma.ui.postMessage(msg);
@@ -102,18 +107,19 @@ async function withTemporaryCornerRadius<T>(
 }
 
 /**
- * Walks `depth` levels down from `node`, taking the first FRAME child at
- * each level. depth 0 returns `node` itself. Returns null if a level
- * doesn't have a frame child to descend into.
+ * Walks `depth` levels down from `node`, taking the first child at each
+ * level — regardless of type, so a vector, image/rectangle, group,
+ * component, or instance works just as well as a frame. depth 0 returns
+ * `node` itself. Returns null if a level has no children to descend into.
  */
 function findChildFrame(node: SceneNode, depth: number): SceneNode | null {
   let current: SceneNode = node;
   for (let i = 0; i < depth; i++) {
     if (!("children" in current)) return null;
     const children = (current as SceneNode & ChildrenMixin).children;
-    const nextFrame = children.find((c) => c.type === "FRAME");
-    if (!nextFrame) return null;
-    current = nextFrame;
+    const nextChild = children[0];
+    if (!nextChild) return null;
+    current = nextChild;
   }
   return current;
 }
@@ -145,7 +151,7 @@ async function exportSingle(
 
   if (!target) {
     figma.notify(
-      `Export Pro: couldn't find a child frame ${template.childFrameDepth} level(s) inside "${rootNode.name}"`,
+      `Export Pro: couldn't find a nested child ${template.childFrameDepth} level(s) inside "${rootNode.name}"`,
     );
     return null;
   }
