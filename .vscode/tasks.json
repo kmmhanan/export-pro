@@ -1,0 +1,62 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Export Pro: Build",
+      "type": "npm",
+      "script": "build",
+      "problemMatcher": ["$tsc"],
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "Export Pro: Typecheck",
+      "type": "npm",
+      "script": "typecheck",
+      "problemMatcher": ["$tsc"],
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "Export Pro: Watch code.ts",
+      "type": "npm",
+      "script": "watch:code",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": { "regexp": "." , "file": 1, "location": 2, "message": 3 },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\[watch\\] build started",
+          "endsPattern": "^\\[watch\\] build finished"
+        }
+      },
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "watch" }
+    },
+    {
+      "label": "Export Pro: Watch ui.ts",
+      "type": "npm",
+      "script": "watch:ui",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": { "regexp": "." , "file": 1, "location": 2, "message": 3 },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\[watch\\] build started",
+          "endsPattern": "^\\[watch\\] build finished"
+        }
+      },
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "watch" }
+    },
+    {
+      "label": "Export Pro: Watch All",
+      "dependsOrder": "parallel",
+      "dependsOn": ["Export Pro: Watch code.ts", "Export Pro: Watch ui.ts"],
+      "problemMatcher": [],
+      "isBackground": true
+    }
+  ]
+}

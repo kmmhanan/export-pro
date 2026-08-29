@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Export Pro: Watch (build only)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run watch:code",
+      "preLaunchTask": "Export Pro: Watch ui.ts",
+      "presentation": { "hidden": false, "group": "export-pro" }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Export Pro: Watch All",
+      "configurations": ["Export Pro: Watch (build only)"],
+      "stopAll": true
+    }
+  ]
+}

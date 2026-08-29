@@ -1,0 +1,59 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Typecheck & build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+
+      # Always keep a build artifact around for the last few runs, even on
+      # plain pushes/PRs, so you can grab a build without cutting a release.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: export-pro-dist
+          path: |
+            manifest.json
+            dist/code.js
+            dist/ui.html
+          retention-days: 14
+
+  release:
+    name: Package & publish GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci
+      - run: npm run package
+
+      - name: Attach zip to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist-release/export-pro.zip
+          generate_release_notes: true
