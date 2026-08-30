@@ -40,7 +40,8 @@ export type UIToPluginMessage =
   | { type: "load-templates" }
   | { type: "save-templates"; templates: ExportTemplate[] }
   | { type: "export-all"; templates: ExportTemplate[] }
-  | { type: "export-one"; template: ExportTemplate };
+  | { type: "export-one"; template: ExportTemplate }
+  | { type: "export-downloaded"; fileCount: number };
 
 /** Messages sent from the plugin sandbox (code.ts) to the UI (iframe). */
 export type PluginToUIMessage =

@@ -12,6 +12,13 @@ const root = document.getElementById("app") as HTMLDivElement;
 let templates: ExportTemplate[] = [];
 let hasSelection = false;
 let saveTimer: number | undefined;
+let isExporting = false;
+let pendingDownload: {
+  blob: Blob;
+  filename: string;
+  fileCount: number;
+} | null = null;
+let lastError: string | null = null;
 
 function post(msg: UIToPluginMessage): void {
   parent.postMessage({ pluginMessage: msg }, "*");
@@ -102,6 +109,24 @@ function render(): void {
   header.appendChild(status);
   root.appendChild(header);
 
+  // ---------- Ready-to-download screen ----------
+  // Browsers block a synthetic file download unless it's triggered by a
+  // direct, in-the-moment user click. The export itself finishes inside an
+  // async postMessage handler, so we can't auto-download from there — we
+  // show a real button instead and let the user's click on *it* carry the
+  // download.
+  if (pendingDownload) {
+    root.appendChild(renderReadyScreen(pendingDownload));
+    return;
+  }
+
+  // ---------- Error banner ----------
+  if (lastError) {
+    const banner = el("div", "error-banner");
+    banner.textContent = lastError;
+    root.appendChild(banner);
+  }
+
   // ---------- List ----------
   const list = el("div", "list");
   if (templates.length === 0) {
@@ -147,15 +172,21 @@ function render(): void {
   const exportAllBtn = el("button", "primary-btn");
   exportAllBtn.appendChild(iconEl(ICONS.download));
   const exportLabel = el("span");
-  exportLabel.textContent = "Export All";
+  exportLabel.textContent = isExporting ? "Exporting…" : "Export All";
   exportAllBtn.appendChild(exportLabel);
-  if (templates.length > 0) {
+  if (templates.length > 0 && !isExporting) {
     const count = el("span", "count");
     count.textContent = String(templates.length);
     exportAllBtn.appendChild(count);
   }
-  exportAllBtn.disabled = !hasSelection || templates.length === 0;
-  exportAllBtn.onclick = () => post({ type: "export-all", templates });
+  exportAllBtn.disabled =
+    !hasSelection || templates.length === 0 || isExporting;
+  exportAllBtn.onclick = () => {
+    lastError = null;
+    isExporting = true;
+    render();
+    post({ type: "export-all", templates });
+  };
   footer.appendChild(exportAllBtn);
 
   const credits = el("div", "credits");
@@ -183,6 +214,51 @@ function render(): void {
   footer.appendChild(credits);
 
   root.appendChild(footer);
+}
+
+function renderReadyScreen(ready: {
+  blob: Blob;
+  filename: string;
+  fileCount: number;
+}): HTMLElement {
+  const wrap = el("div", "ready-screen");
+
+  const icon = el("div", "ready-icon");
+  icon.innerHTML = ICONS.download;
+
+  const heading = el("div", "ready-title");
+  heading.textContent = "Export ready";
+
+  const sub = el("div", "ready-sub");
+  const label = ready.fileCount === 1 ? "file" : "files";
+  sub.textContent = `${ready.fileCount} ${label} — click below to save. This closes the plugin once you do.`;
+
+  const downloadBtn = el("button", "primary-btn");
+  downloadBtn.appendChild(iconEl(ICONS.download));
+  const downloadLabel = el("span");
+  downloadLabel.textContent = `Download ${ready.filename}`;
+  downloadBtn.appendChild(downloadLabel);
+  downloadBtn.onclick = () => {
+    // This click IS the direct user gesture browsers require to allow a
+    // synthetic download — that's why we couldn't auto-trigger this back
+    // when export-complete first arrived.
+    downloadBlob(ready.filename, ready.blob);
+    post({ type: "export-downloaded", fileCount: ready.fileCount });
+  };
+
+  const cancelBtn = el("button", "ghost-btn");
+  cancelBtn.textContent = "Back without downloading";
+  cancelBtn.onclick = () => {
+    pendingDownload = null;
+    render();
+  };
+
+  wrap.appendChild(icon);
+  wrap.appendChild(heading);
+  wrap.appendChild(sub);
+  wrap.appendChild(downloadBtn);
+  wrap.appendChild(cancelBtn);
+  return wrap;
 }
 
 function renderRow(tmpl: ExportTemplate, index: number): HTMLElement {
@@ -251,8 +327,13 @@ function renderRow(tmpl: ExportTemplate, index: number): HTMLElement {
   const exportOneBtn = el("button", "icon-btn export");
   exportOneBtn.title = "Export this template";
   exportOneBtn.appendChild(iconEl(ICONS.download));
-  exportOneBtn.disabled = !hasSelection;
-  exportOneBtn.onclick = () => post({ type: "export-one", template: tmpl });
+  exportOneBtn.disabled = !hasSelection || isExporting;
+  exportOneBtn.onclick = () => {
+    lastError = null;
+    isExporting = true;
+    render();
+    post({ type: "export-one", template: tmpl });
+  };
 
   const deleteBtn = el("button", "icon-btn danger");
   deleteBtn.title = "Delete template";
@@ -289,18 +370,24 @@ function downloadBlob(name: string, blob: Blob): void {
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
-async function handleExportComplete(
+/**
+ * Builds the downloadable blob for a completed export, but does NOT trigger
+ * the download itself — that has to happen from a real button click (see
+ * renderReadyScreen), since browsers block synthetic downloads triggered
+ * from inside an async message handler like this one.
+ */
+async function prepareDownload(
   files: SerializedExportFile[],
-): Promise<void> {
-  if (files.length === 0) return;
+): Promise<{ blob: Blob; filename: string; fileCount: number } | null> {
+  if (files.length === 0) return null;
 
   if (files.length === 1) {
     const f = files[0];
-    downloadBlob(
-      f.name,
-      new Blob([new Uint8Array(f.bytes)], { type: mimeFor(f.name) }),
-    );
-    return;
+    return {
+      blob: new Blob([new Uint8Array(f.bytes)], { type: mimeFor(f.name) }),
+      filename: f.name,
+      fileCount: 1,
+    };
   }
 
   const zip = new JSZip();
@@ -317,7 +404,7 @@ async function handleExportComplete(
     zip.file(name, new Uint8Array(f.bytes));
   }
   const blob = await zip.generateAsync({ type: "blob" });
-  downloadBlob("export-pro-assets.zip", blob);
+  return { blob, filename: "export-pro-assets.zip", fileCount: files.length };
 }
 
 window.onmessage = (event: MessageEvent) => {
@@ -334,10 +421,21 @@ window.onmessage = (event: MessageEvent) => {
       render();
       break;
     case "export-complete":
-      void handleExportComplete(msg.files);
+      isExporting = false;
+      void prepareDownload(msg.files).then((prepared) => {
+        if (!prepared) {
+          lastError = "Export Pro: nothing came back to download.";
+          render();
+          return;
+        }
+        pendingDownload = prepared;
+        render();
+      });
       break;
     case "export-error":
-      console.error("Export Pro error:", msg.message);
+      isExporting = false;
+      lastError = `Export Pro: ${msg.message}`;
+      render();
       break;
     case "export-progress":
       // Reserved for a future progress bar; no-op for now.

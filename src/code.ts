@@ -236,6 +236,13 @@ figma.ui.onmessage = async (msg: UIToPluginMessage) => {
       await runExport([msg.template]);
       break;
     }
+    case "export-downloaded": {
+      const label = msg.fileCount === 1 ? "file" : "files";
+      figma.closePlugin(
+        `Export Pro: exported ${msg.fileCount} ${label} successfully 🎉`,
+      );
+      break;
+    }
   }
 };
 

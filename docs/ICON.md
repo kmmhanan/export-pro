@@ -1,7 +1,7 @@
 # Changing the Plugin Icon
 
 Figma plugin icons are **not** set in `manifest.json` — there's no `icon`
-field for regular plugins (that's only a thing for Figma *widgets*, which
+field for regular plugins (that's only a thing for Figma _widgets_, which
 this isn't). Instead, the icon is uploaded through Figma's own **Publish**
 flow, so you set/change it entirely inside the Figma desktop app.
 

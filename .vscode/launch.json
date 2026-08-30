@@ -7,13 +7,18 @@
       "request": "launch",
       "command": "npm run watch:code",
       "preLaunchTask": "Export Pro: Watch ui.ts",
-      "presentation": { "hidden": false, "group": "export-pro" }
+      "presentation": {
+        "hidden": false,
+        "group": "export-pro"
+      }
     }
   ],
   "compounds": [
     {
       "name": "Export Pro: Watch All",
-      "configurations": ["Export Pro: Watch (build only)"],
+      "configurations": [
+        "Export Pro: Watch (build only)"
+      ],
       "stopAll": true
     }
   ]

@@ -1,3 +1,6 @@
 {
-  "recommendations": ["figma.figma-vscode-extension", "esbenp.prettier-vscode"]
+  "recommendations": [
+    "figma.figma-vscode-extension",
+    "esbenp.prettier-vscode"
+  ]
 }

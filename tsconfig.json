@@ -6,7 +6,7 @@
       "DOM"
     ],
     "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "Node",
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
