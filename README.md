@@ -43,27 +43,28 @@ you select.
 
 Each template has:
 
-| Field             | Meaning                                                                                                    |
-|--------------------|--------------------------------------------------------------------------------------------------------------|
-| `scale` (nx)       | Export scale (1x, 2x, 4x...). Ignored for SVG/PDF.                                                          |
-| `format`           | `PNG`, `JPG`, `SVG`, or `PDF`.                                                                                |
-| `suffix`           | If set: filename is `<selected node name>-<suffix>.<ext>`. If blank: filename is the **target node's own name** instead. |
-| `borderRadius`     | Corner radius applied *temporarily* just before export (`0` = untouched).                                    |
-| `childFrameDepth`  | `0` = export the selected node itself. `N` = descend `N` levels, taking the first `FRAME` child at each level, and export that frame. |
+| Field             | Meaning                                                                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `scale` (nx)      | Export scale (1x, 2x, 4x...). Ignored for SVG/PDF.                                                                                    |
+| `format`          | `PNG`, `JPG`, `SVG`, or `PDF`.                                                                                                        |
+| `suffix`          | If set: filename is `<selected node name>-<suffix>.<ext>`. If blank: filename is the **target node's own name** instead.              |
+| `borderRadius`    | Corner radius applied _temporarily_ just before export (`0` = untouched).                                                             |
+| `childFrameDepth` | `0` = export the selected node itself. `N` = descend `N` levels, taking the first `FRAME` child at each level, and export that frame. |
 
 ### Worked example — a frame named "test icon"
 
-| Template                                              | Output                    |
-|--------------------------------------------------------|----------------------------|
-| `4x, PNG, suffix "rounded", radius 130, child 0`        | `test icon-rounded.png`     |
-| `1x, SVG, suffix "circle", radius 512, child 0`         | `test icon-circle.svg`      |
-| `1x, SVG, suffix "", radius 0, child 1`                 | descends into the first child frame of "test icon" and exports *that* frame, named after itself (e.g. `Frame 1.svg`). `child 2` goes one level deeper. |
+| Template                                         | Output                                                                                                                                                 |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `4x, PNG, suffix "rounded", radius 130, child 0` | `test icon-rounded.png`                                                                                                                                |
+| `1x, SVG, suffix "circle", radius 512, child 0`  | `test icon-circle.svg`                                                                                                                                 |
+| `1x, SVG, suffix "", radius 0, child 1`          | descends into the first child frame of "test icon" and exports _that_ frame, named after itself (e.g. `Frame 1.svg`). `child 2` goes one level deeper. |
 
 ## Screenshots
 
 > _Add a screenshot or GIF of the panel here before publishing —
 > `docs/screenshot.png` is a good spot for it, then embed with
 > `![Export Pro panel](docs/screenshot.png)`._
+//
 
 ## Getting started
 
@@ -89,11 +90,11 @@ info/                           Build, install, and icon documentation
 
 - Corner radius is restored per-corner after export, so it's safe to use on
   frames that previously had mixed corner radii.
-- `childFrameDepth` only ever follows the *first* `FRAME`-type child at each
+- `childFrameDepth` only ever follows the _first_ `FRAME`-type child at each
   level. If a level has no frame child, that template is skipped with a
   toast notification instead of failing silently.
 - Network access is disabled in the manifest (`networkAccess.allowedDomains:
-  ["none"]`) — everything, including zipping, runs locally in the plugin UI.
+["none"]`) — everything, including zipping, runs locally in the plugin UI.
 
 ## Contributing
 
