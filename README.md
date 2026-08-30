@@ -61,10 +61,7 @@ Each template has:
 
 ## Screenshots
 
-> _Add a screenshot or GIF of the panel here before publishing —
-> `docs/screenshot.png` is a good spot for it, then embed with
-> `![Export Pro panel](docs/screenshot.png)`._
-//
+![Export Pro panel](assets/screenshot.png)
 
 ## Getting started
 
