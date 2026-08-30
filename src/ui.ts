@@ -19,6 +19,10 @@ let pendingDownload: {
   fileCount: number;
 } | null = null;
 let lastError: string | null = null;
+// Set right before a render() call that should scroll the list to the
+// bottom (adding a template) instead of preserving the current position
+// (every other render, including deleting a template).
+let scrollToBottomOnNextRender = false;
 
 function post(msg: UIToPluginMessage): void {
   parent.postMessage({ pluginMessage: msg }, "*");
@@ -93,6 +97,9 @@ function numberInput(
 }
 
 function render(): void {
+  const previousList = root.querySelector<HTMLDivElement>(".list");
+  const savedScrollTop = previousList ? previousList.scrollTop : 0;
+
   root.innerHTML = "";
 
   // ---------- Header ----------
@@ -163,6 +170,7 @@ function render(): void {
       childFrameDepth: 0,
     });
     scheduleSave();
+    scrollToBottomOnNextRender = true;
     render();
   };
   root.appendChild(addBtn);
@@ -214,6 +222,17 @@ function render(): void {
   footer.appendChild(credits);
 
   root.appendChild(footer);
+
+  // Applied last, once header/list/add-btn/footer are all in the DOM and
+  // the flex layout (list's height depends on its siblings) has settled —
+  // setting scrollTop any earlier was racing an unstable layout and could
+  // land mid-list instead of top/bottom.
+  if (scrollToBottomOnNextRender) {
+    list.scrollTop = list.scrollHeight;
+    scrollToBottomOnNextRender = false;
+  } else {
+    list.scrollTop = savedScrollTop;
+  }
 }
 
 function renderReadyScreen(ready: {
