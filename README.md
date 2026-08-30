@@ -5,7 +5,7 @@
 **Persistent, template-based export presets for Figma.**
 Define your export settings once — they stay put no matter what you select.
 
-[Features](#features) · [How it works](#how-it-works) · [Install](info/INSTALL.md) · [Build](info/BUILD.md) · [Change the icon](info/ICON.md)
+[Features](#features) · [How it works](#how-it-works) · [Install](docs/INSTALL.md) · [Build](docs/BUILD.md) · [Change the icon](docs/ICON.md)
 
 </div>
 
@@ -65,9 +65,9 @@ Each template has:
 
 ## Getting started
 
-- **Just want to use it?** → [`info/INSTALL.md`](info/INSTALL.md)
-- **Want to build or modify it?** → [`info/BUILD.md`](info/BUILD.md)
-- **Changing the plugin icon?** → [`info/ICON.md`](info/ICON.md)
+- **Just want to use it?** → [`docs/INSTALL.md`](docs/INSTALL.md)
+- **Want to build or modify it?** → [`docs/BUILD.md`](docs/BUILD.md)
+- **Changing the plugin icon?** → [`docs/ICON.md`](docs/ICON.md)
 
 ## Project structure
 
@@ -79,7 +79,7 @@ src/ui.html                  UI HTML/CSS shell (JS gets inlined at build time)
 src/types.ts                 Shared message/data types
 scripts/inline-ui.js         Inlines the built UI bundle into dist/ui.html
 scripts/package-release.js     Packages manifest.json + dist/ into a shareable zip
-info/                           Build, install, and icon documentation
+docs/                           Build, install, and icon documentation
 .github/workflows/               CI: typecheck/build on push, package on release
 ```
 
