@@ -99,4 +99,4 @@ Issues and PRs welcome. Please run `npm run typecheck` before submitting.
 
 ## License
 
-[MIT](LICENSE)
+MIT © [Kmm Hanan](https://kmmhanan.com) — see [LICENSE](./LICENSE).
