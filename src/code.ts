@@ -1,3 +1,5 @@
+/// <reference types="@figma/plugin-typings" />
+
 import type {
   ExportTemplate,
   PluginToUIMessage,

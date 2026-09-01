@@ -5,8 +5,8 @@
       "ES2017",
       "DOM"
     ],
-    "module": "ESNext",
-    "moduleResolution": "Node",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
